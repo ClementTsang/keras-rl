@@ -46,7 +46,7 @@ class CallbackList(KerasCallbackList):
     def _set_env(self, env):
         """ Set environment for each callback in callbackList """
         for callback in self.callbacks:
-            if callable(getattr(callback, '_set_env', None)):
+            if callable(getattr(callback, "_set_env", None)):
                 callback._set_env(env)
 
     def on_episode_begin(self, episode, logs={}):
@@ -54,7 +54,7 @@ class CallbackList(KerasCallbackList):
         for callback in self.callbacks:
             # Check if callback supports the more appropriate `on_episode_begin` callback.
             # If not, fall back to `on_epoch_begin` to be compatible with built-in Keras callbacks.
-            if callable(getattr(callback, 'on_episode_begin', None)):
+            if callable(getattr(callback, "on_episode_begin", None)):
                 callback.on_episode_begin(episode, logs=logs)
             else:
                 callback.on_epoch_begin(episode, logs=logs)
@@ -64,7 +64,7 @@ class CallbackList(KerasCallbackList):
         for callback in self.callbacks:
             # Check if callback supports the more appropriate `on_episode_end` callback.
             # If not, fall back to `on_epoch_end` to be compatible with built-in Keras callbacks.
-            if callable(getattr(callback, 'on_episode_end', None)):
+            if callable(getattr(callback, "on_episode_end", None)):
                 callback.on_episode_end(episode, logs=logs)
             else:
                 callback.on_epoch_end(episode, logs=logs)
@@ -74,7 +74,7 @@ class CallbackList(KerasCallbackList):
         for callback in self.callbacks:
             # Check if callback supports the more appropriate `on_step_begin` callback.
             # If not, fall back to `on_batch_begin` to be compatible with built-in Keras callbacks.
-            if callable(getattr(callback, 'on_step_begin', None)):
+            if callable(getattr(callback, "on_step_begin", None)):
                 callback.on_step_begin(step, logs=logs)
             else:
                 callback.on_batch_begin(step, logs=logs)
@@ -84,7 +84,7 @@ class CallbackList(KerasCallbackList):
         for callback in self.callbacks:
             # Check if callback supports the more appropriate `on_step_end` callback.
             # If not, fall back to `on_batch_end` to be compatible with built-in Keras callbacks.
-            if callable(getattr(callback, 'on_step_end', None)):
+            if callable(getattr(callback, "on_step_end", None)):
                 callback.on_step_end(step, logs=logs)
             else:
                 callback.on_batch_end(step, logs=logs)
@@ -92,13 +92,13 @@ class CallbackList(KerasCallbackList):
     def on_action_begin(self, action, logs={}):
         """ Called at beginning of each action for each callback in callbackList"""
         for callback in self.callbacks:
-            if callable(getattr(callback, 'on_action_begin', None)):
+            if callable(getattr(callback, "on_action_begin", None)):
                 callback.on_action_begin(action, logs=logs)
 
     def on_action_end(self, action, logs={}):
         """ Called at end of each action for each callback in callbackList"""
         for callback in self.callbacks:
-            if callable(getattr(callback, 'on_action_end', None)):
+            if callable(getattr(callback, "on_action_end", None)):
                 callback.on_action_end(action, logs=logs)
 
 
@@ -107,15 +107,15 @@ class TestLogger(Callback):
 
     def on_train_begin(self, logs):
         """ Print logs at beginning of training"""
-        print('Testing for {} episodes ...'.format(self.params['nb_episodes']))
+        print("Testing for {} episodes ...".format(self.params["nb_episodes"]))
 
     def on_episode_end(self, episode, logs):
         """ Print logs at end of each episode """
-        template = 'Episode {0}: reward: {1:.3f}, steps: {2}'
+        template = "Episode {0}: reward: {1:.3f}, steps: {2}"
         variables = [
             episode + 1,
-            logs['episode_reward'],
-            logs['nb_steps'],
+            logs["episode_reward"],
+            logs["nb_steps"],
         ]
         print(template.format(*variables))
 
@@ -136,12 +136,12 @@ class TrainEpisodeLogger(Callback):
         """ Print training values at beginning of training """
         self.train_start = timeit.default_timer()
         self.metrics_names = self.model.metrics_names
-        print('Training for {} steps ...'.format(self.params['nb_steps']))
+        print("Training for {} steps ...".format(self.params["nb_steps"]))
 
     def on_train_end(self, logs):
         """ Print training time at end of training """
         duration = timeit.default_timer() - self.train_start
-        print('done, took {:.3f} seconds'.format(duration))
+        print("done, took {:.3f} seconds".format(duration))
 
     def on_episode_begin(self, episode, logs):
         """ Reset environment variables at beginning of each episode """
@@ -158,44 +158,46 @@ class TrainEpisodeLogger(Callback):
 
         # Format all metrics.
         metrics = np.array(self.metrics[episode])
-        metrics_template = ''
+        metrics_template = ""
         metrics_variables = []
         with warnings.catch_warnings():
-            warnings.filterwarnings('error')
+            warnings.filterwarnings("error")
             for idx, name in enumerate(self.metrics_names):
                 if idx > 0:
-                    metrics_template += ', '
+                    metrics_template += ", "
                 try:
                     value = np.nanmean(metrics[:, idx])
-                    metrics_template += '{}: {:f}'
+                    metrics_template += "{}: {:f}"
                 except Warning:
-                    value = '--'
-                    metrics_template += '{}: {}'
+                    value = "--"
+                    metrics_template += "{}: {}"
                 metrics_variables += [name, value]
         metrics_text = metrics_template.format(*metrics_variables)
 
-        nb_step_digits = str(
-            int(np.ceil(np.log10(self.params['nb_steps']))) + 1)
-        template = '{step: ' + nb_step_digits + \
-            'd}/{nb_steps}: episode: {episode}, duration: {duration:.3f}s, episode steps: {episode_steps}, steps per second: {sps:.0f}, episode reward: {episode_reward:.3f}, mean reward: {reward_mean:.3f} [{reward_min:.3f}, {reward_max:.3f}], mean action: {action_mean:.3f} [{action_min:.3f}, {action_max:.3f}], mean observation: {obs_mean:.3f} [{obs_min:.3f}, {obs_max:.3f}], {metrics}'
+        nb_step_digits = str(int(np.ceil(np.log10(self.params["nb_steps"]))) + 1)
+        template = (
+            "{step: "
+            + nb_step_digits
+            + "d}/{nb_steps}: episode: {episode}, duration: {duration:.3f}s, episode steps: {episode_steps}, steps per second: {sps:.0f}, episode reward: {episode_reward:.3f}, mean reward: {reward_mean:.3f} [{reward_min:.3f}, {reward_max:.3f}], mean action: {action_mean:.3f} [{action_min:.3f}, {action_max:.3f}], mean observation: {obs_mean:.3f} [{obs_min:.3f}, {obs_max:.3f}], {metrics}"
+        )
         variables = {
-            'step': self.step,
-            'nb_steps': self.params['nb_steps'],
-            'episode': episode + 1,
-            'duration': duration,
-            'episode_steps': episode_steps,
-            'sps': float(episode_steps) / duration,
-            'episode_reward': np.sum(self.rewards[episode]),
-            'reward_mean': np.mean(self.rewards[episode]),
-            'reward_min': np.min(self.rewards[episode]),
-            'reward_max': np.max(self.rewards[episode]),
-            'action_mean': np.mean(self.actions[episode]),
-            'action_min': np.min(self.actions[episode]),
-            'action_max': np.max(self.actions[episode]),
-            'obs_mean': np.mean(self.observations[episode]),
-            'obs_min': np.min(self.observations[episode]),
-            'obs_max': np.max(self.observations[episode]),
-            'metrics': metrics_text,
+            "step": self.step,
+            "nb_steps": self.params["nb_steps"],
+            "episode": episode + 1,
+            "duration": duration,
+            "episode_steps": episode_steps,
+            "sps": float(episode_steps) / duration,
+            "episode_reward": np.sum(self.rewards[episode]),
+            "reward_mean": np.mean(self.rewards[episode]),
+            "reward_min": np.min(self.rewards[episode]),
+            "reward_max": np.max(self.rewards[episode]),
+            "action_mean": np.mean(self.actions[episode]),
+            "action_min": np.min(self.actions[episode]),
+            "action_max": np.max(self.actions[episode]),
+            "obs_mean": np.mean(self.observations[episode]),
+            "obs_min": np.min(self.observations[episode]),
+            "obs_max": np.max(self.observations[episode]),
+            "metrics": metrics_text,
         }
         print(template.format(**variables))
 
@@ -208,11 +210,11 @@ class TrainEpisodeLogger(Callback):
 
     def on_step_end(self, step, logs):
         """ Update statistics of episode after each step """
-        episode = logs['episode']
-        self.observations[episode].append(logs['observation'])
-        self.rewards[episode].append(logs['reward'])
-        self.actions[episode].append(logs['action'])
-        self.metrics[episode].append(logs['metrics'])
+        episode = logs["episode"]
+        self.observations[episode].append(logs["observation"])
+        self.rewards[episode].append(logs["reward"])
+        self.actions[episode].append(logs["action"])
+        self.metrics[episode].append(logs["metrics"])
         self.step += 1
 
 
@@ -235,61 +237,65 @@ class TrainIntervalLogger(Callback):
         """ Initialize training statistics at beginning of training """
         self.train_start = timeit.default_timer()
         self.metrics_names = self.model.metrics_names
-        print('Training for {} steps ...'.format(self.params['nb_steps']))
+        print("Training for {} steps ...".format(self.params["nb_steps"]))
 
     def on_train_end(self, logs):
         """ Print training duration at end of training """
         duration = timeit.default_timer() - self.train_start
-        print('done, took {:.3f} seconds'.format(duration))
+        print("done, took {:.3f} seconds".format(duration))
 
     def on_step_begin(self, step, logs):
         """ Print metrics if interval is over """
         if self.step % self.interval == 0:
             if len(self.episode_rewards) > 0:
                 metrics = np.array(self.metrics)
-                assert metrics.shape == (
-                    self.interval, len(self.metrics_names))
-                formatted_metrics = ''
+                assert metrics.shape == (self.interval, len(self.metrics_names))
+                formatted_metrics = ""
                 if not np.isnan(metrics).all():  # not all values are means
                     means = np.nanmean(self.metrics, axis=0)
                     assert means.shape == (len(self.metrics_names),)
                     for name, mean in zip(self.metrics_names, means):
-                        formatted_metrics += ' - {}: {:.3f}'.format(name, mean)
+                        formatted_metrics += " - {}: {:.3f}".format(name, mean)
 
-                formatted_infos = ''
+                formatted_infos = ""
                 if len(self.infos) > 0:
                     infos = np.array(self.infos)
                     if not np.isnan(infos).all():  # not all values are means
                         means = np.nanmean(self.infos, axis=0)
                         assert means.shape == (len(self.info_names),)
                         for name, mean in zip(self.info_names, means):
-                            formatted_infos += ' - {}: {:.3f}'.format(
-                                name, mean)
-                print('{} episodes - episode_reward: {:.3f} [{:.3f}, {:.3f}]{}{}'.format(len(self.episode_rewards), np.mean(
-                    self.episode_rewards), np.min(self.episode_rewards), np.max(self.episode_rewards), formatted_metrics, formatted_infos))
-                print('')
+                            formatted_infos += " - {}: {:.3f}".format(name, mean)
+                print(
+                    "{} episodes - episode_reward: {:.3f} [{:.3f}, {:.3f}]{}{}".format(
+                        len(self.episode_rewards),
+                        np.mean(self.episode_rewards),
+                        np.min(self.episode_rewards),
+                        np.max(self.episode_rewards),
+                        formatted_metrics,
+                        formatted_infos,
+                    )
+                )
+                print("")
             self.reset()
-            print('Interval {} ({} steps performed)'.format(
-                self.step // self.interval + 1, self.step))
+            print("Interval {} ({} steps performed)".format(self.step // self.interval + 1, self.step))
 
     def on_step_end(self, step, logs):
         """ Update progression bar at the end of each step """
         if self.info_names is None:
-            self.info_names = logs['info'].keys()
-        values = [('reward', logs['reward'])]
-        if KERAS_VERSION > '2.1.3':
+            self.info_names = logs["info"].keys()
+        values = [("reward", logs["reward"])]
+        if KERAS_VERSION > "2.1.3":
             self.progbar.update((self.step % self.interval) + 1, values=values)
         else:
-            self.progbar.update((self.step % self.interval) +
-                                1, values=values, force=True)
+            self.progbar.update((self.step % self.interval) + 1, values=values, force=True)
         self.step += 1
-        self.metrics.append(logs['metrics'])
+        self.metrics.append(logs["metrics"])
         if len(self.info_names) > 0:
-            self.infos.append([logs['info'][k] for k in self.info_names])
+            self.infos.append([logs["info"][k] for k in self.info_names])
 
     def on_episode_end(self, episode, logs):
         """ Update reward value at the end of each episode """
-        self.episode_rewards.append(logs['episode_reward'])
+        self.episode_rewards.append(logs["episode_reward"])
 
 
 class FileLogger(Callback):
@@ -331,7 +337,7 @@ class FileLogger(Callback):
 
         data = list(zip(self.metrics_names, mean_metrics))
         data += list(logs.items())
-        data += [('episode', episode), ('duration', duration)]
+        data += [("episode", episode), ("duration", duration)]
         for key, value in data:
             if key not in self.data:
                 self.data[key] = []
@@ -346,7 +352,7 @@ class FileLogger(Callback):
 
     def on_step_end(self, step, logs):
         """ Append metric at the end of each step """
-        self.metrics[logs['episode']].append(logs['metrics'])
+        self.metrics[logs["episode"]].append(logs["metrics"])
 
     def save_data(self):
         """ Save metrics in a json file """
@@ -354,26 +360,25 @@ class FileLogger(Callback):
             return
 
         # Sort everything by episode.
-        assert 'episode' in self.data
-        sorted_indexes = np.argsort(self.data['episode'])
+        assert "episode" in self.data
+        sorted_indexes = np.argsort(self.data["episode"])
         sorted_data = {}
         for key, values in self.data.items():
             assert len(self.data[key]) == len(sorted_indexes)
             # We convert to np.array() and then to list to convert from np datatypes to native datatypes.
             # This is necessary because json.dump cannot handle np.float32, for example.
-            sorted_data[key] = np.array(
-                [self.data[key][idx] for idx in sorted_indexes]).tolist()
+            sorted_data[key] = np.array([self.data[key][idx] for idx in sorted_indexes]).tolist()
 
         # Overwrite already open file. We can simply seek to the beginning since the file will
         # grow strictly monotonously.
-        with open(self.filepath, 'w') as f:
+        with open(self.filepath, "w") as f:
             json.dump(sorted_data, f)
 
 
 class Visualizer(Callback):
     def on_action_end(self, action, logs):
         """ Render environment at the end of each action """
-        self.env.render(mode='human')
+        self.env.render(mode="human")
 
 
 class ModelIntervalCheckpoint(Callback):
@@ -393,8 +398,7 @@ class ModelIntervalCheckpoint(Callback):
 
         filepath = self.filepath.format(step=self.total_steps, **logs)
         if self.verbose > 0:
-            print('Step {}: saving model to {}'.format(
-                self.total_steps, filepath))
+            print("Step {}: saving model to {}".format(self.total_steps, filepath))
         self.model.save_weights(filepath, overwrite=True)
 
 
@@ -402,11 +406,7 @@ class WandbLogger(Callback):
     """ Similar to TrainEpisodeLogger, but sends data to Weights & Biases to be visualized """
 
     def __init__(self, **kwargs):
-        kwargs = {
-            'project': 'keras-rl',
-            'anonymous': 'allow',
-            **kwargs
-        }
+        kwargs = {"project": "keras-rl", "anonymous": "allow", **kwargs}
         wandb.init(**kwargs)
         self.episode_start = {}
         self.observations = {}
@@ -418,13 +418,15 @@ class WandbLogger(Callback):
     def on_train_begin(self, logs):
         self.train_start = timeit.default_timer()
         self.metrics_names = self.model.metrics_names
-        wandb.config.update({
-            'params': self.params,
-            'env': self.env.__dict__,
-            'env.env': self.env.env.__dict__,
-            'env.env.spec': self.env.env.spec.__dict__,
-            'agent': self.model.__dict__
-        })
+        wandb.config.update(
+            {
+                "params": self.params,
+                "env": self.env.__dict__,
+                "env.env": self.env.env.__dict__ if hasattr(self.env, "env") else None,
+                "env.env.spec": self.env.env.spec.__dict__ if hasattr(self.env, "env") else None,
+                "agent": self.model.__dict__,
+            }
+        )
 
     def on_episode_begin(self, episode, logs):
         """ Reset environment variables at beginning of each episode """
@@ -442,31 +444,33 @@ class WandbLogger(Callback):
         metrics = np.array(self.metrics[episode])
         metrics_dict = {}
         with warnings.catch_warnings():
-            warnings.filterwarnings('error')
+            warnings.filterwarnings("error")
             for idx, name in enumerate(self.metrics_names):
                 try:
                     metrics_dict[name] = np.nanmean(metrics[:, idx])
                 except Warning:
-                    metrics_dict[name] = float('nan')
+                    metrics_dict[name] = float("nan")
 
-        wandb.log({
-            'step': self.step,
-            'episode': episode + 1,
-            'duration': duration,
-            'episode_steps': episode_steps,
-            'sps': float(episode_steps) / duration,
-            'episode_reward': np.sum(self.rewards[episode]),
-            'reward_mean': np.mean(self.rewards[episode]),
-            'reward_min': np.min(self.rewards[episode]),
-            'reward_max': np.max(self.rewards[episode]),
-            'action_mean': np.mean(self.actions[episode]),
-            'action_min': np.min(self.actions[episode]),
-            'action_max': np.max(self.actions[episode]),
-            'obs_mean': np.mean(self.observations[episode]),
-            'obs_min': np.min(self.observations[episode]),
-            'obs_max': np.max(self.observations[episode]),
-            **metrics_dict
-        })
+        wandb.log(
+            {
+                "step": self.step,
+                "episode": episode + 1,
+                "duration": duration,
+                "episode_steps": episode_steps,
+                "sps": float(episode_steps) / duration,
+                "episode_reward": np.sum(self.rewards[episode]),
+                "reward_mean": np.mean(self.rewards[episode]),
+                "reward_min": np.min(self.rewards[episode]),
+                "reward_max": np.max(self.rewards[episode]),
+                "action_mean": np.mean(self.actions[episode]),
+                "action_min": np.min(self.actions[episode]),
+                "action_max": np.max(self.actions[episode]),
+                "obs_mean": np.mean(self.observations[episode]),
+                "obs_min": np.min(self.observations[episode]),
+                "obs_max": np.max(self.observations[episode]),
+                **metrics_dict,
+            }
+        )
 
         # Free up resources.
         del self.episode_start[episode]
@@ -477,9 +481,9 @@ class WandbLogger(Callback):
 
     def on_step_end(self, step, logs):
         """ Update statistics of episode after each step """
-        episode = logs['episode']
-        self.observations[episode].append(logs['observation'])
-        self.rewards[episode].append(logs['reward'])
-        self.actions[episode].append(logs['action'])
-        self.metrics[episode].append(logs['metrics'])
+        episode = logs["episode"]
+        self.observations[episode].append(logs["observation"])
+        self.rewards[episode].append(logs["reward"])
+        self.actions[episode].append(logs["action"])
+        self.metrics[episode].append(logs["metrics"])
         self.step += 1
